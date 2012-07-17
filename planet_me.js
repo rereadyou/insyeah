@@ -124,9 +124,9 @@ var pm = planet_me = planet = {
 
 		var startAngle	  = 270 - eachCharAngle*name.length/2;
 		
-		this.holoNameAngle = this.holoNameAngle || {};
-		var beg = this.holoNameAngle[name] || startAngle ;
-		this.holoNameAngle[name] = beg - 2*Math.PI/60;
+		this.haloNameAngle = this.haloNameAngle || {};
+		var beg = this.haloNameAngle[name] || startAngle ;
+		this.haloNameAngle[name] = beg - 2*Math.PI/60;
 		_that = this;
 		//console.info(this);
 
@@ -137,7 +137,7 @@ var pm = planet_me = planet = {
 		{
 			ctx.save();
 			//console.info(name[i], i*eachCharAngle);
-			ctx.rotate(_that.holoNameAngle[name]+ i*eachCharAngle);
+			ctx.rotate(_that.haloNameAngle[name]+ i*eachCharAngle);
 			ctx.fillText(name[i], 0, -circle.r+lineWidth/2);
 			ctx.restore();
 		}
@@ -191,15 +191,13 @@ var pm = planet_me = planet = {
 
 		_that = this;
 
-		//console.log('this.ps = ', this.ps['me']);
 		if(true)
-		{
-			
+		{			
 			var c = ps[0].value.planet;
 			var t = pr.textBase;
 			var h = this.canvas.height;
 			var w = this.canvas.width;
-			
+			//////////////////// random bounce ////////////////////
 			/*
 			c.x += _that.psdxdy[p].dx;
 			c.y += _that.psdxdy[p].dy;
@@ -217,7 +215,7 @@ var pm = planet_me = planet = {
 				_that.psdxdy[p].dy = - _that.psdxdy[p].dy;
 			}
 			*/
-		
+			////////////////// end random bounce //////////////////
 			
 
 			//ps[p].planet = c;
@@ -228,27 +226,27 @@ var pm = planet_me = planet = {
 			_that.circleText(c, t, pr.lineWidth, ps[0].value.color, ps[0].value.user, false);
 
 			//console.info('fp: ', fp);
-			var holo1r = c.r + 100;
-			var holo2r = c.r + 250;
+			var halo1r = c.r + 100;
+			var halo2r = c.r + 250;
 
 			var opcolor1 = ps[0].value.color.replace(/0?\.\d/, '0.10');
 			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.05');
 			var shadow = {color: opcolor1, alpha: 0.4, offsetX: 6, offsetY: 6, blur: 10};
 			
-			//first holo
-			_that.circle({'x': c.x, 'y': c.y, 'r': holo1r}, 50, opcolor1, shadow);
+			//first halo
+			_that.circle({'x': c.x, 'y': c.y, 'r': halo1r}, 50, opcolor1, shadow);
 
 			var fpLen = ps.length - 1;
 			var eachFpAngle = 2*Math.PI/fpLen;
 			//console.info('ps.length', ps, ps.length);
 			//console.info('eachFpAngle', fpLen, eachFpAngle);			
 
-			//the rotate angle of first holo
-			_that.holo1OffsetAngle = _that.holo1OffsetAngle || 0;
-			_that.holo1OffsetAngle += -2*Math.PI/360;
-			_that.holo1OffsetAngle %= -2*Math.PI;
+			//the rotate angle of first halo
+			_that.halo1OffsetAngle = _that.halo1OffsetAngle || 0;
+			_that.halo1OffsetAngle += -2*Math.PI/360;
+			_that.halo1OffsetAngle %= -2*Math.PI;
 
-			var offsetAngle = _that.holo1OffsetAngle;
+			var offsetAngle = _that.halo1OffsetAngle;
 
 			var stepi = 0;
 			for(var fp in ps)
@@ -258,36 +256,48 @@ var pm = planet_me = planet = {
 					_that.ctx.save();
 					_that.ctx.translate(c.x, c.y);//same effect with plus ix and iy the c.x and c.y
 					
-
-					//the first holo 
-					var ix = holo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
-					var iy = holo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
+					//the first halo 
+					var ix = halo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
+					var iy = halo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
 					
 					
-					var holo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
-					//if mouse over certain sub holo circle
+					var halo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
+					//if mouse over certain sub halo circle
 					
 
 					var coords = {'x': ix+c.x, 'y': c.y+iy, 'r': ps[fp].value.planet.r};
-					console.info('xxxx', _that.shake(coords));
-					if( _that.shake(coords) )
+					//check if the cursor is enclosed by current sub sircle
+					
+					_that.enlargeCircle = _that.enlargeCircle || false;
+					// if cursor not move and already in circle
+					if(_that.mouse)
 					{
-						//console.info(coords);
-						holo1c.r += 30;
-						//_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);
-						console.info(holo1c);
+						_that.enlargeCircle = _that.enclose_check(coords, _that.mouse);
+					}
+					//if cursor moved, do check if enclure condition
+					_that.canvas.onmousemove = function(event) {			
+							var m = _that.get_mouse(event, _that.canvas);				
+							_that.enlargeCircle = _that.enclose_check(coords, m);
+						};
+					
+					if(_that.enlargeCircle)
+					{
+						halo1c.r += 20;
+						_that.enlargeCircle = false;
 					}
 
 
-					//console.info(holo1c);
-					_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);	
-					_that.circleText(holo1c, t, pr.lineWidth, ps[fp].value.color, ps[fp].value.user, false);
+					//console.info(halo1c);
+					_that.circle(halo1c, pr.lineWidth, ps[fp].value.color);	
+					_that.circleText(halo1c, t, pr.lineWidth, ps[fp].value.color, ps[fp].value.user, false);
 					
 					_that.ctx.restore();
 					stepi++;
 				}
 			}
-			_that.circle({'x': c.x, 'y': c.y, 'r': holo2r}, 50, opcolor2, shadow);
+
+			//draw the second halo;
+			_that.circle({'x': c.x, 'y': c.y, 'r': halo2r}, 50, opcolor2, shadow);
 			
 			//_that.circle({'x': c.x, 'y': c.y, 'r': c.r + 170}, 1, ps[p].color);
 			//echo name
@@ -330,17 +340,20 @@ var pm = planet_me = planet = {
 	shake: function(circle) {
 		//move planet base point
 		_that = this;
+		_that.res = false;
 		this.canvas.onmousemove = function(event) {
 			//var o = e.target || e.srcElement;
 			var m = mouse = _that.get_mouse(event, _that.canvas);
 			
 			if(circle)
 			{
+				//console.info('event ');
 				//console.info(circle, m);
 				//console.info('yyyyy', _that.enclose_check(circle, m));
-				return _that.enclose_check(circle, m);
+				_that.res = _that.enclose_check(circle, m);
 				
 			}
+			//console.info($res);
 			/*
 			for(var p in _that.ps)
 			{
@@ -363,15 +376,28 @@ var pm = planet_me = planet = {
 			
 			
 		};
-		
+		//console.info('res: ', _that.res);
+		return _that.res;
 		//return this;
 	},
 	
+	enclose_check: function(circle, mouse)
+	{
+		var c = circle;
+		var m = mouse;
+		//console.info(c, m);
+		var $r = (m.x-c.x)*(m.x-c.x) + (m.y-c.y)*(m.y-c.y) < (c.r)*(c.r);
+		//console.info('$r: ', $r);
+		this.res = $r;
+		//console.info(this.res);
+		return $r;
+	},
+
 	get_mouse: function(event, canvas){
-		return mouse = {	x: event.pageX - canvas.offsetLeft,
+		 this.mouse = mouse = {	x: event.pageX - canvas.offsetLeft,
 		        			y: event.pageY - canvas.offsetTop
 		    			};
-		
+		return mouse;
 	},
 	
 	pop_div: function(id, x, y, width, height, txt){
@@ -395,16 +421,6 @@ var pm = planet_me = planet = {
 			
 	},
 	
-	enclose_check: function(circle, mouse)
-	{
-		var c = circle;
-		var m = mouse;
-		//console.info(c, m);
-		var $r = (m.x-c.x)*(m.x-c.x) + (m.y-c.y)*(m.y-c.y) < (c.r)*(c.r);
-		//console.info($r);
-		return $r;
-	},
-	
 	bubble: function() {
 		
 	},
@@ -413,7 +429,10 @@ var pm = planet_me = planet = {
 		
 		_that = this;
 		//this.draw();
-		setInterval(function(){ _that.clear(); _that.draw();}, 100);
+		setInterval(function(){ _that.clear(); 
+			_that.canvas.onmousemove
+			
+			_that.draw();}, 100);
 		//return this;
 	}
 	
@@ -422,7 +441,7 @@ var pm = planet_me = planet = {
 
 
 planet.init([['me', 'rereadyou', 'male', 'rgba(75, 192, 238, 0.5)', 70],
-			 ['he', 'zhangb', 'male', 'rgba(175, 92, 138, 0.5)', 40]]);/*
+			 ['he', 'zhangb', 'male', 'rgba(175, 92, 138, 0.5)', 40],
 			 ['she', 'she', 'female', 'rgba(225, 92, 38, 0.5)', 40],
 			 ['sea', 'sea', 'male', 'rgba(25, 92, 38, 0.5)', 40],
 			 ['sky', 'sky', 'male', 'rgba(225, 192, 38, 0.5)', 45],
