@@ -37,10 +37,10 @@ var pm = planet_me = planet = {
 			var circle = {x: randX, y: randY, r: value};
 
 			//console.log(value, circle);
-			_that.ps[id] = {'user': name, 'planet': circle, 'color': color};
+			_that.ps.push({id: id, value: {'user': name, 'planet': circle, 'color': color}});
 		}
 		
-		
+		//console.info(this.ps);
 		
 		
 		
@@ -126,7 +126,7 @@ var pm = planet_me = planet = {
 		
 		this.holoNameAngle = this.holoNameAngle || {};
 		var beg = this.holoNameAngle[name] || startAngle ;
-		this.holoNameAngle[name] = beg - 0.2;
+		this.holoNameAngle[name] = beg - 2*Math.PI/60;
 		_that = this;
 		//console.info(this);
 
@@ -192,11 +192,10 @@ var pm = planet_me = planet = {
 		_that = this;
 
 		//console.log('this.ps = ', this.ps['me']);
-		//for(var p in ps)
+		if(true)
 		{
-			var p = 'me';
-			//console.info(p, ps);
-			var c = ps[p].planet;
+			
+			var c = ps[0].value.planet;
 			var t = pr.textBase;
 			var h = this.canvas.height;
 			var w = this.canvas.width;
@@ -219,51 +218,76 @@ var pm = planet_me = planet = {
 			}
 			*/
 		
-			//console.info('c, t:', c, t);
+			
 
 			//ps[p].planet = c;
 			//pr.textBase = t;
 			
-			//_that.gradient_circle(c, pr.lineWidth, ps[p].color);
-			_that.circle(c, pr.lineWidth, ps[p].color);	
-			_that.circleText(c, t, pr.lineWidth, ps[p].color, ps[p].user, false);
+			//_that.gradient_circle(c, pr.lineWidth, ps[0].value.color);
+			_that.circle(c, pr.lineWidth+10, ps[0].value.color);	
+			_that.circleText(c, t, pr.lineWidth, ps[0].value.color, ps[0].value.user, false);
 
-			var opcolor1 = ps[p].color.replace(/0?\.\d/, '0.08');
-			var opcolor2 = ps[p].color.replace(/0?\.\d/, '0.05');
-			var shadow = {color: opcolor1, alpha: 0.8, offsetX: 6, offsetY: 6, blur: 10};
+			//console.info('fp: ', fp);
+			var holo1r = c.r + 100;
+			var holo2r = c.r + 250;
+
+			var opcolor1 = ps[0].value.color.replace(/0?\.\d/, '0.10');
+			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.05');
+			var shadow = {color: opcolor1, alpha: 0.4, offsetX: 6, offsetY: 6, blur: 10};
 			
+			//first holo
+			_that.circle({'x': c.x, 'y': c.y, 'r': holo1r}, 50, opcolor1, shadow);
+
 			var fpLen = ps.length - 1;
-			var eachFpAngle = 360/fpLen;
-//console.info(this);
+			var eachFpAngle = 2*Math.PI/fpLen;
+			//console.info('ps.length', ps, ps.length);
+			//console.info('eachFpAngle', fpLen, eachFpAngle);			
+
+			//the rotate angle of first holo
+			_that.holo1OffsetAngle = _that.holo1OffsetAngle || 0;
+			_that.holo1OffsetAngle += -2*Math.PI/360;
+			_that.holo1OffsetAngle %= -2*Math.PI;
+
+			var offsetAngle = _that.holo1OffsetAngle;
+
 			var stepi = 0;
 			for(var fp in ps)
 			{
-				
-				var holo1r = c.r + 100;
-				_that.circle({'x': c.x, 'y': c.y, 'r': holo1r}, 50, opcolor1, shadow);
-
-				if(fp != p)
+				if(ps[fp].id != ps[0].id)
 				{
-					//console.info(fp, stepi, eachFpAngle);
-					stepi++;
-
 					_that.ctx.save();
-					_that.ctx.translate(c.x, c.y);
-					//_that.ctx.rotate(stepi*eachFpAngle);
+					_that.ctx.translate(c.x, c.y);//same effect with plus ix and iy the c.x and c.y
+					
 
 					//the first holo 
-					var ix = holo1r*Math.cos(stepi*eachFpAngle);
-					var iy = holo1r*Math.sin(stepi*eachFpAngle);
-					//var off = coordinates_offset(12, holo1r);
-					var holo1c = {'x': ix, 'y': iy, 'r': ps[fp].planet.r};
+					var ix = holo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
+					var iy = holo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
+					
+					
+					var holo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
+					//if mouse over certain sub holo circle
+					
+
+					var coords = {'x': ix+c.x, 'y': c.y+iy, 'r': ps[fp].value.planet.r};
+					console.info('xxxx', _that.shake(coords));
+					if( _that.shake(coords) )
+					{
+						//console.info(coords);
+						holo1c.r += 30;
+						//_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);
+						console.info(holo1c);
+					}
+
+
 					//console.info(holo1c);
-					_that.circle(holo1c, pr.lineWidth, ps[fp].color);	
-					_that.circleText(holo1c, t, pr.lineWidth, ps[fp].color, ps[fp].user, false);
-					//_that.ps[fp];
+					_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);	
+					_that.circleText(holo1c, t, pr.lineWidth, ps[fp].value.color, ps[fp].value.user, false);
+					
 					_that.ctx.restore();
+					stepi++;
 				}
 			}
-			_that.circle({'x': c.x, 'y': c.y, 'r': c.r + 250}, 50, opcolor2, shadow);
+			_that.circle({'x': c.x, 'y': c.y, 'r': holo2r}, 50, opcolor2, shadow);
 			
 			//_that.circle({'x': c.x, 'y': c.y, 'r': c.r + 170}, 1, ps[p].color);
 			//echo name
@@ -303,34 +327,44 @@ var pm = planet_me = planet = {
 		return this;
 	},
 	
-	shake: function() {
+	shake: function(circle) {
 		//move planet base point
 		_that = this;
 		this.canvas.onmousemove = function(event) {
 			//var o = e.target || e.srcElement;
 			var m = mouse = _that.get_mouse(event, _that.canvas);
 			
-			
+			if(circle)
+			{
+				//console.info(circle, m);
+				//console.info('yyyyy', _that.enclose_check(circle, m));
+				return _that.enclose_check(circle, m);
+				
+			}
+			/*
 			for(var p in _that.ps)
 			{
-				var v = _that.ps[p];
+				var v = _that.ps[p].value.planet;
 				//_that.ctx.clearRect(m.x, m.y, 2, 2);
 				if(_that.enclose_check(v, m))
 				{
+					return 'in';
 					console.info('in '+p);
-					_that.pop_div('me', v.x, v.y, 30, 30, 'rereadyou');
+					//_that.pop_div('me', v.x, v.y, 30, 30, 'rereadyou');
 				}
 				else
 				{
+					return 'out';
 					console.info('out '+p);
 				}
 				
 			}
+			*/
 			
 			
 		};
 		
-		return this;
+		//return this;
 	},
 	
 	get_mouse: function(event, canvas){
@@ -365,8 +399,10 @@ var pm = planet_me = planet = {
 	{
 		var c = circle;
 		var m = mouse;
-		
-		return (m.x-c.x)*(m.x-c.x) + (m.y-c.y)*(m.y-c.y) < (c.r)*(c.r);
+		//console.info(c, m);
+		var $r = (m.x-c.x)*(m.x-c.x) + (m.y-c.y)*(m.y-c.y) < (c.r)*(c.r);
+		//console.info($r);
+		return $r;
 	},
 	
 	bubble: function() {
@@ -386,7 +422,7 @@ var pm = planet_me = planet = {
 
 
 planet.init([['me', 'rereadyou', 'male', 'rgba(75, 192, 238, 0.5)', 70],
-			 ['he', 'zhangb', 'male', 'rgba(175, 92, 138, 0.5)', 40],
+			 ['he', 'zhangb', 'male', 'rgba(175, 92, 138, 0.5)', 40]]);/*
 			 ['she', 'she', 'female', 'rgba(225, 92, 38, 0.5)', 40],
 			 ['sea', 'sea', 'male', 'rgba(25, 92, 38, 0.5)', 40],
 			 ['sky', 'sky', 'male', 'rgba(225, 192, 38, 0.5)', 45],
