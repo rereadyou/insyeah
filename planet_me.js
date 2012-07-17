@@ -124,9 +124,9 @@ var pm = planet_me = planet = {
 
 		var startAngle	  = 270 - eachCharAngle*name.length/2;
 		
-		this.haloNameAngle = this.haloNameAngle || {};
-		var beg = this.haloNameAngle[name] || startAngle ;
-		this.haloNameAngle[name] = beg - 2*Math.PI/60;
+		this.holoNameAngle = this.holoNameAngle || {};
+		var beg = this.holoNameAngle[name] || startAngle ;
+		this.holoNameAngle[name] = beg - 2*Math.PI/60;
 		_that = this;
 		//console.info(this);
 
@@ -137,7 +137,7 @@ var pm = planet_me = planet = {
 		{
 			ctx.save();
 			//console.info(name[i], i*eachCharAngle);
-			ctx.rotate(_that.haloNameAngle[name]+ i*eachCharAngle);
+			ctx.rotate(_that.holoNameAngle[name]+ i*eachCharAngle);
 			ctx.fillText(name[i], 0, -circle.r+lineWidth/2);
 			ctx.restore();
 		}
@@ -228,28 +228,27 @@ var pm = planet_me = planet = {
 			_that.circleText(c, t, pr.lineWidth, ps[0].value.color, ps[0].value.user, false);
 
 			//console.info('fp: ', fp);
-			var halo1r = c.r + 100;
-			var halo2r = c.r + 250;
+			var holo1r = c.r + 100;
+			var holo2r = c.r + 250;
 
-			//set first and second halos opacity
 			var opcolor1 = ps[0].value.color.replace(/0?\.\d/, '0.10');
-			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.08');
+			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.05');
 			var shadow = {color: opcolor1, alpha: 0.4, offsetX: 6, offsetY: 6, blur: 10};
 			
-			//draw first halo
-			_that.circle({'x': c.x, 'y': c.y, 'r': halo1r}, 50, opcolor1, shadow);
+			//first holo
+			_that.circle({'x': c.x, 'y': c.y, 'r': holo1r}, 50, opcolor1, shadow);
 
 			var fpLen = ps.length - 1;
 			var eachFpAngle = 2*Math.PI/fpLen;
 			//console.info('ps.length', ps, ps.length);
 			//console.info('eachFpAngle', fpLen, eachFpAngle);			
 
-			//the rotate angle of first halo
-			_that.halo1OffsetAngle = _that.halo1OffsetAngle || 0;
-			_that.halo1OffsetAngle += -2*Math.PI/360;
-			_that.halo1OffsetAngle %= -2*Math.PI;
+			//the rotate angle of first holo
+			_that.holo1OffsetAngle = _that.holo1OffsetAngle || 0;
+			_that.holo1OffsetAngle += -2*Math.PI/360;
+			_that.holo1OffsetAngle %= -2*Math.PI;
 
-			var offsetAngle = _that.halo1OffsetAngle;
+			var offsetAngle = _that.holo1OffsetAngle;
 
 			var stepi = 0;
 			for(var fp in ps)
@@ -260,13 +259,13 @@ var pm = planet_me = planet = {
 					_that.ctx.translate(c.x, c.y);//same effect with plus ix and iy the c.x and c.y
 					
 
-					//the first halo 
-					var ix = halo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
-					var iy = halo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
+					//the first holo 
+					var ix = holo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
+					var iy = holo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
 					
 					
-					var halo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
-					//if mouse over certain sub halo circle
+					var holo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
+					//if mouse over certain sub holo circle
 					
 
 					var coords = {'x': ix+c.x, 'y': c.y+iy, 'r': ps[fp].value.planet.r};
@@ -274,21 +273,21 @@ var pm = planet_me = planet = {
 					if( _that.shake(coords) )
 					{
 						//console.info(coords);
-						halo1c.r += 30;
-						//_that.circle(halo1c, pr.lineWidth, ps[fp].value.color);
-						console.info(halo1c);
+						holo1c.r += 30;
+						//_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);
+						console.info(holo1c);
 					}
 
 
-					//console.info(halo1c);
-					_that.circle(halo1c, pr.lineWidth, ps[fp].value.color);	
-					_that.circleText(halo1c, t, pr.lineWidth, ps[fp].value.color, ps[fp].value.user, false);
+					//console.info(holo1c);
+					_that.circle(holo1c, pr.lineWidth, ps[fp].value.color);	
+					_that.circleText(holo1c, t, pr.lineWidth, ps[fp].value.color, ps[fp].value.user, false);
 					
 					_that.ctx.restore();
 					stepi++;
 				}
 			}
-			_that.circle({'x': c.x, 'y': c.y, 'r': halo2r}, 50, opcolor2, shadow);
+			_that.circle({'x': c.x, 'y': c.y, 'r': holo2r}, 50, opcolor2, shadow);
 			
 			//_that.circle({'x': c.x, 'y': c.y, 'r': c.r + 170}, 1, ps[p].color);
 			//echo name
