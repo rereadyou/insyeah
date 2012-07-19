@@ -230,7 +230,7 @@ var pm = planet_me = planet = {
 			var halo2r = c.r + 250;
 
 			var opcolor1 = ps[0].value.color.replace(/0?\.\d/, '0.10');
-			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.05');
+			var opcolor2 = ps[0].value.color.replace(/0?\.\d/, '0.08');
 			var shadow = {color: opcolor1, alpha: 0.4, offsetX: 6, offsetY: 6, blur: 10};
 			
 			//first halo
@@ -432,7 +432,7 @@ var pm = planet_me = planet = {
 		setInterval(function(){ _that.clear(); 
 			_that.canvas.onmousemove
 			
-			_that.draw();}, 100);
+			_that.draw();},  1000/24);
 		//return this;
 	}
 	
