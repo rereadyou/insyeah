@@ -222,6 +222,7 @@ var pm = planet_me = planet = {
 			//pr.textBase = t;
 			
 			//_that.gradient_circle(c, pr.lineWidth, ps[0].value.color);
+			//_that.cxt.rotate();
 			_that.circle(c, pr.lineWidth+10, ps[0].value.color);	
 			_that.circleText(c, t, pr.lineWidth, ps[0].value.color, ps[0].value.user, false);
 
@@ -332,7 +333,11 @@ var pm = planet_me = planet = {
 				}
 			}
 			*/
+
+
 		}
+
+		_that.rotateY();
 
 		return this;
 	},
@@ -400,6 +405,54 @@ var pm = planet_me = planet = {
 		return mouse;
 	},
 	
+	project: function(p3d, zAngle){
+		var powerP = p3d.x * p3d.x + p3d.y* p3d.y + p3d.z*p3d.z;
+		var powerXYR = p3d.x*p3d.x + p3d.y*p3d.y;
+		var x = 0;
+
+	},
+
+	rotateY: function(p3d, radius)
+	{
+		//_that.circle({x: 100, y: 100, r: 40}, 10, 'rgba(0, 255, 0, 0.5)');
+		this.ctx.save();
+		this.line({x:400, y:250}, {x:400, y:251},  20, 'rgba(5, 5, 5, 0.9)');
+		this.line({x:400, y:250}, {x:401, y:250},  20, 'rgba(5, 5, 5, 0.9)');
+		this.line({x:400, y:250}, {x:400, y:249},  20, 'rgba(5, 5, 5, 0.9)');
+		this.line({x:400, y:250}, {x:399, y:250},  20, 'rgba(5, 5, 5, 0.9)');
+		this.ctx.translate(400, 200);
+		p3d={x: 100, y:100, z:100};
+		this.radius = this.radius || 0;
+		var radius = (this.radius+Math.PI/12)%(2*Math.PI);
+		this.radius = radius;
+	    //radius is
+		// cos(a+b) = cos(a)*cos(b)-sin(a)*sin(b);
+		// cos(a -b) = cos(a)*cos(b)+sib(a)*sib(b);
+		// sin(a+b)  = sin(a)*cos(b) + cos(a)*sin(b);
+		// sin(a -b)  = sin(a)*cos(b) - cos(a)*sin(b);
+		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		//   var x1 = r.cos(theta+radius);
+		//	  x1 = r.cos(theta).cos(radius) - r*sin(theta).sin(radius);
+		//   var z1 = r*sin(theta+radius);
+		//    z1 = r*sin(theta)*cos(radius) + r*cos(theta)*sin(radius);
+	    // r.cos(theta) == p3d.x
+		// r.sin(theta) == p3d.z
+		var x1 = p3d.x*cos - p3d.z*sin;
+		var z1 = p3d.z*cos - p3d.x*cos;
+		p2.x = x1;
+		p2.z = z1;
+		p2.y = p3d.y;
+		
+		var xx = {x: Math.floor(p2.x),  y: Math.floor(50*p2.z/p3d.z)};
+		var zz = {x: Math.floor(p2.x),  y: Math.floor(100*p2.z/p3d.z)};
+		this.line( xx,  zz, 5, 'rgba(5, 5, 5, 0.9)');
+
+		//console.info(radius, xx, zz);
+		
+		this.ctx.restore();
+		//return p2;
+	},
+
 	pop_div: function(id, x, y, width, height, txt){
 		if(document.getElementById(id))
 		{
