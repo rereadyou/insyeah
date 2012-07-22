@@ -283,7 +283,7 @@ var pm = planet_me = planet = {
 					
 					if(_that.enlargeCircle)
 					{
-						halo1c.r += 20;
+						halo1c.r += 10;
 						_that.enlargeCircle = false;
 					}
 
@@ -406,51 +406,163 @@ var pm = planet_me = planet = {
 	},
 	
 	project: function(p3d, zAngle){
-		var powerP = p3d.x * p3d.x + p3d.y* p3d.y + p3d.z*p3d.z;
-		var powerXYR = p3d.x*p3d.x + p3d.y*p3d.y;
-		var x = 0;
-
+		// project the 3d anxis to 2d anxis, the default angle is PI/4,
+		// that is 45'
+		var radius = zAngle || Math.PI/4,
+			cos = Math.cos(radius);
+			
+			p3d.y += Math.round(p3d.z*cos);
+			
+		
+		return p3d;
 	},
 
-	rotateY: function(p3d, radius)
-	{
-		//_that.circle({x: 100, y: 100, r: 40}, 10, 'rgba(0, 255, 0, 0.5)');
+	rotateY: function(p3d, radius){
+		/*
 		this.ctx.save();
 		this.line({x:400, y:250}, {x:400, y:251},  20, 'rgba(5, 5, 5, 0.9)');
 		this.line({x:400, y:250}, {x:401, y:250},  20, 'rgba(5, 5, 5, 0.9)');
 		this.line({x:400, y:250}, {x:400, y:249},  20, 'rgba(5, 5, 5, 0.9)');
 		this.line({x:400, y:250}, {x:399, y:250},  20, 'rgba(5, 5, 5, 0.9)');
+		//anxis core
 		this.ctx.translate(400, 200);
-		p3d={x: 100, y:100, z:100};
+		
 		this.radius = this.radius || 0;
-		var radius = (this.radius+Math.PI/12)%(2*Math.PI);
+		 var radius = (this.radius+Math.PI/360)%(2*Math.PI);
 		this.radius = radius;
+		*/
 	    //radius is
-		// cos(a+b) = cos(a)*cos(b)-sin(a)*sin(b);
-		// cos(a -b) = cos(a)*cos(b)+sib(a)*sib(b);
-		// sin(a+b)  = sin(a)*cos(b) + cos(a)*sin(b);
-		// sin(a -b)  = sin(a)*cos(b) - cos(a)*sin(b);
-		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		// cos(a+b) = cos(a)*cos(b) - sin(a)*sin(b);
+		// cos(a-b) = cos(a)*cos(b) + sib(a)*sib(b);
+		// sin(a+b) = sin(a)*cos(b) + cos(a)*sin(b);
+		// sin(a-b) = sin(a)*cos(b) - cos(a)*sin(b);
+		var p2 = {},  R = Math.round,  cos = Math.cos(radius), sin = Math.sin(radius);
+
 		//   var x1 = r.cos(theta+radius);
 		//	  x1 = r.cos(theta).cos(radius) - r*sin(theta).sin(radius);
 		//   var z1 = r*sin(theta+radius);
 		//    z1 = r*sin(theta)*cos(radius) + r*cos(theta)*sin(radius);
 	    // r.cos(theta) == p3d.x
 		// r.sin(theta) == p3d.z
-		var x1 = p3d.x*cos - p3d.z*sin;
-		var z1 = p3d.z*cos - p3d.x*cos;
-		p2.x = x1;
-		p2.z = z1;
-		p2.y = p3d.y;
-		
-		var xx = {x: Math.floor(p2.x),  y: Math.floor(50*p2.z/p3d.z)};
-		var zz = {x: Math.floor(p2.x),  y: Math.floor(100*p2.z/p3d.z)};
-		this.line( xx,  zz, 5, 'rgba(5, 5, 5, 0.9)');
+		//console.info(this.$3dlines);
 
-		//console.info(radius, xx, zz);
+		var x = p3d.x*cos - p3d.z*sin;
+		var z = p3d.z*cos - p3d.x*cos;
+		var y = p3d.y;
+	
+		return p3d = {x: R(x), y: R(y), z: R(z)};
+
+		/*
+		for(var line in this.$3dlines)
+		{
+			var beg = this.$3dlines[line].beg;
+			var end = this.$3dlines[line].end;
+
+			var x = beg.x*cos - beg.z*sin;
+			var z = beg.z*cos - beg.x*cos;
+			var y = beg.y;
+
+			var x1 = end.x*cos - end.z*sin;
+			var z1 = end.z*cos - end.x*cos;
+			var y1 = end.y;
+			
+			var xx = {x: x,  y: y};
+			var zz = {x: x1,  y: y1};
+
+			beg = {x: x, y: y, z: z};
+			end = {x: x1, y: y1, z: z1};
 		
-		this.ctx.restore();
+			//this.line( xx,  zz, 2, 'rgba(5, 5, 5, 0.9)');
+		}
+		*/
+		
+		//this.ctx.restore();
 		//return p2;
+	},
+
+	rotateX: function(p3d, radius) 
+	{
+		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+
+		var x = p3d.x;
+		var y = p3d.y*cos + p3d.z*sin;
+		var z = p3d.z*cos - p3d.y*sin;
+		
+		return p3d = {x: x, y: y, z: z};
+	},
+
+	rotateZ: function(p3d, radius) 
+	{
+		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		
+		var x = p3d.x*cos - p3d.y*sin;
+		var y = p3d.y*cos + p3d.x*sin;
+		var z = p3d.z;
+		
+		return p3d = {x: Math.round(x), y: Math.round(y), z: Math.round(z)};
+	},
+
+	box: function(core, length, width, height)
+	{
+		var $lines = this.$3dlines = this.$3dlines || [];
+		// a box is totally of 12 lines
+		/*      a                 b
+			   /|-------2--------/|
+			  / |               / |
+			 1  5              3  6
+			/   |             /   |
+		  c/--------4--------/d   |
+		   |  a'/-------10---|----/b'
+		   |   /             |   /
+	       8  9       *      7  11
+		   | /               | /
+         c'|/-------12-------|/d'
+
+					^
+				   /|\
+				    |  /
+				   y| /
+					|/     x   
+			--------+---------->
+				   /|      
+				 z/ |
+				 /  |
+			   \/__
+			   
+		*/
+		//push the 3d xyz value to lines for every of the 12 lines
+		var l = length / 2;
+		var w = width / 2;
+		var h = height / 2;
+		var x = core.x;
+		var y = core.y;
+		var z = core.z;
+		//suppose the x axis is from * to right, y is from * to down, z is from * to up
+		var a = {x: -l, y: -w, z: h}, 
+			b = {x: l,  y: -w, z: h}, 
+			c = {x: -l, y: w,  z: h}, 
+			d = {x: l,  y: w,  z: h},
+			a1 = {x: -l, y: -w, z: -h}, 
+			b1 = {x: l,  y: -w, z: -h}, 
+			c1 = {x: -l, y: w,  z: -h}, 
+			d1 = {x: l,  y: w,  z: -h};
+
+		$lines.push({beg:c, end:a}); // line 1
+		$lines.push({beg:a, end:b}); // line 1
+		$lines.push({beg:b, end:d}); // line 1
+		$lines.push({beg:d, end:c}); // line 1
+
+		$lines.push({beg:a, end:a1}); // line 1
+		$lines.push({beg:b, end:b1}); // line 1
+		$lines.push({beg:c, end:c1}); // line 1
+		$lines.push({beg:d, end:d1}); // line 1
+
+		$lines.push({beg:c1, end:a1}); // line 1
+		$lines.push({beg:a1, end:b1}); // line 1
+		$lines.push({beg:b1, end:d1}); // line 1
+		$lines.push({beg:d1, end:c1}); // line 1
+
+		//console.info(this.$3dlines);
 	},
 
 	pop_div: function(id, x, y, width, height, txt){
@@ -482,10 +594,56 @@ var pm = planet_me = planet = {
 		
 		_that = this;
 		//this.draw();
-		setInterval(function(){ _that.clear(); 
-			_that.canvas.onmousemove
-			
-			_that.draw();},  1000/24);
+
+		var radiusX = Math.PI/36;
+		var radiusZ = Math.PI/36;
+		this.box({x: 50, y: 50, z: 50}, 100, 100, 100);
+		var timer = setInterval(function(){ _that.clear(); 
+				_that.canvas.onmousemove
+
+				_that.radius = _that.radius || 0;
+				  var radius = (_that.radius+Math.PI/360)%(2*Math.PI);
+				_that.radius = radius;
+
+		_that.line({x:400, y:250}, {x:400, y:251},  20, 'rgba(5, 5, 5, 0.9)');
+		_that.line({x:400, y:250}, {x:401, y:250},  20, 'rgba(5, 5, 5, 0.9)');
+		_that.line({x:400, y:250}, {x:400, y:249},  20, 'rgba(5, 5, 5, 0.9)');
+		_that.line({x:400, y:250}, {x:399, y:250},  20, 'rgba(5, 5, 5, 0.9)');
+				_that.ctx.save();
+				_that.ctx.translate(400, 250);
+				
+				
+				for(var l in _that.$3dlines)
+				{
+
+					var e = _that.$3dlines[l];
+					//console.info(e);
+					var beg = _that.$3dlines[l].beg;
+					var end = _that.$3dlines[l].end;
+						
+						beg = _that.rotateY(beg, radius);
+						end = _that.rotateY(end, radius);
+					
+					
+					//beg = _that.rotateX(beg, radius);
+					//end = _that.rotateX(end, radius);
+
+					//beg = _that.rotateZ(beg, radiusX);
+					//end = _that.rotateZ(end, radiusX);
+					
+					var b = beg;
+						//b = _that.project(b, Math.PI/3);
+					var e = end;
+						//e = _that.project(e, Math.PI/3);
+					
+
+					_that.line(b, e, 1, 'rgba(0,0,0,0.5)');
+					//console.info(r, g, b);
+				}
+				_that.ctx.restore();
+				//clearInterval(timer);
+			//_that.draw();
+			},  1000/24);
 		//return this;
 	}
 	
