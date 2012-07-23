@@ -506,28 +506,28 @@ var pm = planet_me = planet = {
 	{
 		var $lines = this.$3dlines = this.$3dlines || [];
 		// a box is totally of 12 lines
-		/*      a                 b
+		/*      a                       b
 			   /|-------2--------/|
-			  / |               / |
-			 1  5              3  6
-			/   |             /   |
-		  c/--------4--------/d   |
-		   |  a'/-------10---|----/b'
-		   |   /             |   /
-	       8  9       *      7  11
-		   | /               | /
-         c'|/-------12-------|/d'
+			 /  |                       / |
+		   1   5                     3 6
+		  /     |                    /    |
+	  c/--------4--------/d    |
+	    |   a'/-------10----|----/b'
+		|    /                      |    /
+	   8  9            *         7 11
+	    | /                         | /
+	 c |--------12--------|d'
 
-					^
-				   /|\
-				    |  /
-				   y| /
-					|/     x   
+				        ^
+					   /|\
+			             |    /
+				       y|  /
+					     |/     x
 			--------+---------->
-				   /|      
-				 z/ |
-				 /  |
-			   \/__
+				       /|
+				    z/ |
+				    /   |
+				 \/__
 			   
 		*/
 		//push the 3d xyz value to lines for every of the 12 lines
@@ -625,11 +625,11 @@ var pm = planet_me = planet = {
 						end = _that.rotateY(end, radius);
 					
 					
-					//beg = _that.rotateX(beg, radius);
-					//end = _that.rotateX(end, radius);
+					//beg = _that.rotateX(beg, radiusX);
+					//end = _that.rotateX(end, radiusX);
 
-					//beg = _that.rotateZ(beg, radiusX);
-					//end = _that.rotateZ(end, radiusX);
+					//beg = _that.rotateZ(beg, radiusZ);
+					//end = _that.rotateZ(end, radiusZ);
 					
 					var b = beg;
 						//b = _that.project(b, Math.PI/3);
