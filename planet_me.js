@@ -409,9 +409,14 @@ var pm = planet_me = planet = {
 		// project the 3d anxis to 2d anxis, the default angle is PI/4,
 		// that is 45'
 		var radius = zAngle || Math.PI/4,
-			cos = Math.cos(radius);
+				cos = Math.cos(radius);
+				sin = Math.sin(radius);
+				var z = p3d.z;
+				var y = p3d.y;
+				p3d.z = z*cos - y*sin;
+				p3d.y = y*cos + z*sin;
 			
-			p3d.y += Math.round(p3d.z*cos);
+			
 			
 		
 		return p3d;
@@ -445,12 +450,13 @@ var pm = planet_me = planet = {
 	    // r.cos(theta) == p3d.x
 		// r.sin(theta) == p3d.z
 		//console.info(this.$3dlines);
+		var x = p3d.x, y = p3d.y, z = p3d.z;
 
-		var x = p3d.x*cos - p3d.z*sin;
-		var z = p3d.z*cos - p3d.x*cos;
-		var y = p3d.y;
+		var x1 = x*cos - z*sin;
+		var z1 = z*cos - x*cos;
+		var y1 = y;
 	
-		return p3d = {x: R(x), y: R(y), z: R(z)};
+		return p3d = {x: R(x1), y: R(y1), z: R(z1)};
 
 		/*
 		for(var line in this.$3dlines)
@@ -483,23 +489,25 @@ var pm = planet_me = planet = {
 	rotateX: function(p3d, radius) 
 	{
 		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		var x = p3d.x, y = p3d.y, z = p3d.z;
 
-		var x = p3d.x;
-		var y = p3d.y*cos + p3d.z*sin;
-		var z = p3d.z*cos - p3d.y*sin;
+		var x1 = x;
+		var y1 = y*cos + z*sin;
+		var z1 = z*cos - y*sin;
 		
-		return p3d = {x: x, y: y, z: z};
+		return p3d = {x: x1, y: y1, z: z1};
 	},
 
 	rotateZ: function(p3d, radius) 
 	{
 		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		var x = p3d.x, y = p3d.y, z = p3d.z;
+
+		var x1 = x*cos - y*sin;
+		var y1 = y*cos + x*sin;
+		var z1 = z;
 		
-		var x = p3d.x*cos - p3d.y*sin;
-		var y = p3d.y*cos + p3d.x*sin;
-		var z = p3d.z;
-		
-		return p3d = {x: Math.round(x), y: Math.round(y), z: Math.round(z)};
+		return p3d = {x: Math.round(x1), y: Math.round(y1), z: Math.round(z1)};
 	},
 
 	box: function(core, length, width, height)
@@ -632,11 +640,10 @@ var pm = planet_me = planet = {
 					//end = _that.rotateZ(end, radiusZ);
 					
 					var b = beg;
-						//b = _that.project(b, Math.PI/3);
+						  b = _that.project(b, Math.PI/4);
 					var e = end;
-						//e = _that.project(e, Math.PI/3);
+						  e = _that.project(e, Math.PI/4);
 					
-
 					_that.line(b, e, 1, 'rgba(0,0,0,0.5)');
 					//console.info(r, g, b);
 				}
