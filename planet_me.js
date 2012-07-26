@@ -1,8 +1,26 @@
 
 var pm = planet_me = planet = {
+
+		constants:	function() {
+			PI			= Math.PI;
+			TWO_PI		= Math.PI * 2;
+			HALF_PI		= Math.PI / 2;
+			QUARTER_PI	= Math.PI / 4;
+
+			sin			= Math.sin;
+			cos			= Math.cos;
+			round		= Math.round;
+			floor		= Math.floor;
+			ceil		= Math.ceil;
+			pow			= Math.power;
+			random		= Math.random;
+
+		},
+
 	//init the planet
 	init: function(pps){
-	
+		this.constants.call(window, '');
+
 		this.canvas = canvas = document.getElementById('planet_me');
 		this.ctx = ctx 	= canvas.getContext('2d');
 		
@@ -31,8 +49,8 @@ var pm = planet_me = planet = {
 
 			_that.psdxdy[id] = {'dx': _that.dx, 'dy': _that.dy};
 
-			var randX = 400 || Math.floor(Math.random()*300) + 100;
-			var randY = 250 || Math.floor(Math.random()*100) + 100;
+			var randX = 400 || floor(random()*300) + 100;
+			var randY = 250 || floor(random()*100) + 100;
 
 			var circle = {x: randX, y: randY, r: value};
 
@@ -49,7 +67,7 @@ var pm = planet_me = planet = {
 	
 	circle: function(circle, lineWidth, color, shadow){
 		var clockWise 	= 'true';
-		var arcRange 	= {start: 0, end: Math.PI*2};
+		var arcRange 	= {start: 0, end: TWO_PI};
 		
 		var ctx = this.ctx;
 		
@@ -117,7 +135,7 @@ var pm = planet_me = planet = {
 		ctx.save();
 			
 		var txtWidth = ctx.measureText(name).width * lineWidth; //1.5 * lineWidth; 
-		var circumference = 2 * Math.PI * circle.r;
+		var circumference = TWO_PI * circle.r;
 		var eachCharAngle = txtWidth/circumference/name.length;
 		
 		//console.info(eachCharAngle, eachCharAngle*name.length, '|',txtWidth, circumference);
@@ -126,7 +144,7 @@ var pm = planet_me = planet = {
 		
 		this.haloNameAngle = this.haloNameAngle || {};
 		var beg = this.haloNameAngle[name] || startAngle ;
-		this.haloNameAngle[name] = beg - 2*Math.PI/60;
+		this.haloNameAngle[name] = beg - TWO_PI/60;
 		_that = this;
 		//console.info(this);
 
@@ -147,8 +165,8 @@ var pm = planet_me = planet = {
 	
 	coordinates_offset: function(angle, radious) {
 		var r = radious;
-		var x = r * Math.cos(angle);
-		var y = r * Math.sin(angle);
+		var x = r * cos(angle);
+		var y = r * sin(angle);
 
 		return {'x': x, 'y': y};
 	},
@@ -238,14 +256,14 @@ var pm = planet_me = planet = {
 			_that.circle({'x': c.x, 'y': c.y, 'r': halo1r}, 50, opcolor1, shadow);
 
 			var fpLen = ps.length - 1;
-			var eachFpAngle = 2*Math.PI/fpLen;
+			var eachFpAngle = TWO_PI /fpLen;
 			//console.info('ps.length', ps, ps.length);
 			//console.info('eachFpAngle', fpLen, eachFpAngle);			
 
 			//the rotate angle of first halo
 			_that.halo1OffsetAngle = _that.halo1OffsetAngle || 0;
-			_that.halo1OffsetAngle += -2*Math.PI/360;
-			_that.halo1OffsetAngle %= -2*Math.PI;
+			_that.halo1OffsetAngle += -TWO_PI/360;
+			_that.halo1OffsetAngle %= -TWO_PI ;
 
 			var offsetAngle = _that.halo1OffsetAngle;
 
@@ -258,8 +276,8 @@ var pm = planet_me = planet = {
 					_that.ctx.translate(c.x, c.y);//same effect with plus ix and iy the c.x and c.y
 					
 					//the first halo 
-					var ix = halo1r * Math.cos(stepi*eachFpAngle + offsetAngle);// + c.x;
-					var iy = halo1r * Math.sin(stepi*eachFpAngle + offsetAngle);// - c.y;
+					var ix = halo1r * cos(stepi*eachFpAngle + offsetAngle);// + c.x;
+					var iy = halo1r * sin(stepi*eachFpAngle + offsetAngle);// - c.y;
 					
 					
 					var halo1c = {'x': ix, 'y': iy, 'r': ps[fp].value.planet.r};
@@ -408,13 +426,11 @@ var pm = planet_me = planet = {
 	project: function(p3d, zAngle){
 		// project the 3d anxis to 2d anxis, the default angle is PI/4,
 		// that is 45'
-		var radius = zAngle || Math.PI/4,
-				cos = Math.cos(radius);
-				sin = Math.sin(radius);
+		var radius = zAngle || QUARTER_PI;
 				var z = p3d.z;
 				var y = p3d.y;
-				p3d.z = z*cos - y*sin;
-				p3d.y = y*cos + z*sin;
+				p3d.z = z*cos(radius) - y*sin(radius);
+				p3d.y = y*cos(radius) + z*sin(radius);
 			
 			
 			
@@ -441,7 +457,7 @@ var pm = planet_me = planet = {
 		// cos(a-b) = cos(a)*cos(b) + sib(a)*sib(b);
 		// sin(a+b) = sin(a)*cos(b) + cos(a)*sin(b);
 		// sin(a-b) = sin(a)*cos(b) - cos(a)*sin(b);
-		var p2 = {},  R = Math.round,  cos = Math.cos(radius), sin = Math.sin(radius);
+		var p2 = {},  R = round;
 
 		//   var x1 = r.cos(theta+radius);
 		//	  x1 = r.cos(theta).cos(radius) - r*sin(theta).sin(radius);
@@ -452,8 +468,8 @@ var pm = planet_me = planet = {
 		//console.info(this.$3dlines);
 		var x = p3d.x, y = p3d.y, z = p3d.z;
 
-		var x1 = x*cos - z*sin;
-		var z1 = z*cos - x*cos;
+		var x1 = x*cos(radius) - z*sin(radius);
+		var z1 = z*cos(radius) - x*cos(radius);
 		var y1 = y;
 	
 		return p3d = {x: R(x1), y: R(y1), z: R(z1)};
@@ -488,26 +504,26 @@ var pm = planet_me = planet = {
 
 	rotateX: function(p3d, radius) 
 	{
-		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		var p2 = {} ; 
 		var x = p3d.x, y = p3d.y, z = p3d.z;
 
 		var x1 = x;
-		var y1 = y*cos + z*sin;
-		var z1 = z*cos - y*sin;
+		var y1 = y*cos(radius) + z*sin(radius);
+		var z1 = z*cos(radius) - y*sin(radius);
 		
 		return p3d = {x: x1, y: y1, z: z1};
 	},
 
 	rotateZ: function(p3d, radius) 
 	{
-		var p2 = {} ,  cos = Math.cos(radius), sin = Math.sin(radius); 
+		var p2 = {}; 
 		var x = p3d.x, y = p3d.y, z = p3d.z;
 
-		var x1 = x*cos - y*sin;
-		var y1 = y*cos + x*sin;
+		var x1 = x*cos(radius) - y*sin(radius);
+		var y1 = y*cos(radius) + x*sin(radius);
 		var z1 = z;
 		
-		return p3d = {x: Math.round(x1), y: Math.round(y1), z: Math.round(z1)};
+		return p3d = {x: round(x1), y: round(y1), z: round(z1)};
 	},
 
 	box: function(core, length, width, height)
@@ -603,14 +619,14 @@ var pm = planet_me = planet = {
 		_that = this;
 		//this.draw();
 
-		var radiusX = Math.PI/36;
-		var radiusZ = Math.PI/36;
+		var radiusX = PI/36;
+		var radiusZ = PI/36;
 		this.box({x: 50, y: 50, z: 50}, 100, 100, 100);
 		var timer = setInterval(function(){ _that.clear(); 
 				_that.canvas.onmousemove
 
 				_that.radius = _that.radius || 0;
-				  var radius = (_that.radius+Math.PI/360)%(2*Math.PI);
+				  var radius = (_that.radius+PI/360)%(2*PI);
 				_that.radius = radius;
 
 		_that.line({x:400, y:250}, {x:400, y:251},  20, 'rgba(5, 5, 5, 0.9)');
@@ -640,9 +656,9 @@ var pm = planet_me = planet = {
 					//end = _that.rotateZ(end, radiusZ);
 					
 					var b = beg;
-						  b = _that.project(b, Math.PI/4);
+						  b = _that.project(b, QUARTER_PI);
 					var e = end;
-						  e = _that.project(e, Math.PI/4);
+						  e = _that.project(e, QUARTER_PI);
 					
 					_that.line(b, e, 1, 'rgba(0,0,0,0.5)');
 					//console.info(r, g, b);
