@@ -171,7 +171,7 @@ var PE = pintuEditor = {
 			var modelessCommands= _that.toolbar_modeless_command.join();
 			//change the css when an item is selected
 			$(o).toggleClass('toolItemSelected');
-			console.info(o);
+//			console.info(o);
 
 			if( noArgCommands.indexOf(fn)+1 )
 			{
@@ -209,6 +209,7 @@ var PE = pintuEditor = {
 						_that.pop_div(t, l, 'fontSize');
 						break;
 					case 'createlink':
+						$('#linkText').val(_that.doc.getSelection());
 						_that.pop_div(t, l, 'link');
 						break;
 					case 'insertimage':
@@ -243,21 +244,19 @@ var PE = pintuEditor = {
 
 			linkDiv += "<div id='radioDiv'>";
 
-			var radioSwitchDiv = "<div id='linkRadio' style='float: left; margin: 20px 0px; width: 150px; font-size: 13px;'>";
+		var radioSwitchDiv = "<div id='linkRadio' style='float: left; margin: 20px 0px; width: 150px; font-size: 13px;'>";
 			radioSwitchDiv += "<input type='radio' id='linkUrlRadio' class = 'linkDest' name='linkSrc' checked/>Web address" + "</br></br>";
 			radioSwitchDiv += "<input type='radio' id='linkMailRadio' class = 'linkDest' name='linkSrc' />Email address";
 			radioSwitchDiv += "</div>";
-			
-			var linkUrl = "<div id='linkUrl' class='linkInput' style='padding: 20px 0px;' >";
+		
+		var linkUrl = "<div id='linkUrl' class='linkInput' style='padding: 20px 0px;' >";
 			linkUrl += "<b>To what URL should this link go?</b></br><input id='linkDestUrl' type='text' name='linkUrl' style='width: 433px';/>";	
 			linkUrl +="<div id='tr_image-dialog-external-image-preview' style='width: 433px; color: #888888 !important; border: 1px solid #DDDDDD; font-size: 13px;'>Not sure what to put in the box? First, find the page on the web that you want to link to. (A search engine might be useful.) Then, copy the web address from the box in your browser's address bar, and paste it into the box above.</font></p></div>";
 			linkUrl += "</div>";
-			
-			var linkMail = "<div id='linkEmail' class='linkInput' style='padding: 20px 0px; display: none; ' >"; 
+		
+		var linkMail = "<div id='linkEmail' class='linkInput' style='padding: 20px 0px; display: none; ' >"; 
 			linkMail += "<b>To what email address should this link?</b></br> <input id='linkDestMail' type='text' style='width: 433px;' />";
-
 			linkMail += "</div>";	
-
 
 			linkDiv += radioSwitchDiv;
 			linkDiv += "<div id='linkInput' style='float: left; font-size: 13px; padding-left: 10px;'>";
@@ -265,55 +264,48 @@ var PE = pintuEditor = {
 			linkDiv += linkMail;
 			linkDiv += '</div>';
 
-
 			linkDiv += "</div>";
 			linkDiv += "<div style='clear: both;'></div>";
 			linkDiv += "<input id='linkDone' class='button' type='button' style='margin: 0px 0px 0px 5px;' value='OK' disabled />";
 			linkDiv += "<input id='linkCancel' class='button' type='button' style='margin: 0px 0px 0px 5px;' value='Cancel' />";
 			linkDiv += "</form></div>";
 
-
-
 		this.create_div(700, 0, 'link');
 		$('#link').append(linkDiv);
 		
-		_that = this;
+		var _that = this;
 		
 		$('.linkDest').each(function(){ 
 				$(this).bind('click', function() {
 					$('.linkInput').toggle(); 
 				});
 			});
+		
 
-		$('.closeX').bind('click', function() { $('#link').toggle(); });
-		$('#linkCancel').bind('click', function() { $('#link').toggle(); });
+		$('.closeX').bind('click', function() { $('#link').toggle(); $('.petbLINK').removeClass('toolItemSelected');});
+		$('#linkCancel').bind('click', function() { $('#link').toggle(); $('.petbLINK').removeClass('toolItemSelected');});
 		
 		$('#linkDestUrl').bind('input', function() {
-				
 					$('#linkDone').attr('disabled', false);
-					console.info('paste');
-					
+					//console.info('paste');
 				});
-
+		
 		$(this.link).find('#linkDone').bind('click', function(){ 
 				
-				url = $('#linkDestUrl').val();
-				email = $('#linkDestEmail').val();
+				var url = $('#linkDestUrl').val();
+				var email = $('#linkDestEmail').val();
 				
 				//set the input txt as link
-				txt = $('#linkText').val();
+				var txt = $('#linkText').val();
 				if(txt)
 				{
-					console.info('with display', txt);
 					var newLink = '<a href="'+url+'" target="_blank" >'+txt+'</a>';
 					//insertHtml is not supported by IE, ie need pasteHTML on textrange
 					_that.doc.execCommand('insertHTML', false, newLink);
 
 					$('#linkText').val('');
 					$('#linkDestUrl').val('');
-					$('#link').toggle();
-					return;
-
+					$('#link').hide();
 				}
 				//check url.
 				var urlRegExp = /^http:\/\/\w[\w\/#\.\?&]*\.\w{2,}$/i;
@@ -321,46 +313,46 @@ var PE = pintuEditor = {
 				console.info(_that.doc.getSelection());
 				if(_that.doc.getSelection())
 				{
-					console.info(_that.doc.getSelection());
 					_that.doc.execCommand('createLink', false, url);
-					$('#link').toggle();
+					$('#link').hide();
 				}
 				else 
 				{
-					console.info(url);
 					$('#unvalidUrlHint').remove();
 					var hint = "<div id='unvalidUrlHint' style='color: #FF0000; font-size: 13px;' >";
 						hint += "Unvalid URL or display text, Please input a valid URL and display text.";
 						hint += "</div>";
 					$('#linkDiv').append(hint);
 				}
-				
+				// remove css of selected
+				$('.petbLINK').removeClass('toolItemSelected');
 			});
+		
 
 
 	},
 
 	image: function(imgtype)
 	{
-		radioSwitchDiv = "<div id='imgRadio' style='float: left; margin: 20px 0px; width: 150px; font-size: 13px;'>";
-		radioSwitchDiv += "<input type='radio' id='pcTypeImg' class = 'imgtype' name='imgSrc' checked/>My Computer" + "</br></br>";
-		radioSwitchDiv += "<input type='radio' id='urlTypeImg' class = 'imgtype' name='imgSrc' />Web Address(URL)";
-		radioSwitchDiv += "</div>";
+		var radioSwitchDiv = "<div id='imgRadio' style='float: left; margin: 20px 0px; width: 150px; font-size: 13px;'>";
+			radioSwitchDiv += "<input type='radio' id='pcTypeImg' class = 'imgtype' name='imgSrc' checked/>My Computer" + "</br></br>";
+			radioSwitchDiv += "<input type='radio' id='urlTypeImg' class = 'imgtype' name='imgSrc' />Web Address(URL)";
+			radioSwitchDiv += "</div>";
 		
-		uploadPartDiv = "<div id='uploadPart' class='imgInput' style='padding: 30px 0px;' >";
-		uploadPartDiv += "Upload an image <input id='pcImg' type='file' name='uploadfilename' />";	
-		uploadPartDiv += "</div>";
+		var uploadPartDiv = "<div id='uploadPart' class='imgInput' style='padding: 30px 0px;' >";
+			uploadPartDiv += "Upload an image <input id='pcImg' type='file' name='uploadfilename' />";	
+			uploadPartDiv += "</div>";
 		
-		webAddressUrl = "<div id='webimgurl' class='imgInput' style='display: none; ' >"; 
-		webAddressUrl += "Image URL <input id='urlImg' type='text' style='width: 331px;' />";
+		var webAddressUrl = "<div id='webimgurl' class='imgInput' style='display: none; ' >"; 
+			webAddressUrl += "Image URL <input id='urlImg' type='text' style='width: 331px;' />";
 
-		webAddressUrl +="<div id='tr_image-dialog-external-image-preview' style='width: 400px; color: #888888 !important; border: 1px solid #DDDDDD; text-align: center;'>If your URL is correct, you'll see an image preview here. Large images may take a few minutes to appear.<p><font size='-2'>Remember: Using others' images on the web without their permission may be bad manners, or worse, copyright infringement.</font></p></div>";
-		webAddressUrl += "</div>";	
+			webAddressUrl +="<div id='tr_image-dialog-external-image-preview' style='width: 400px; color: #888888 !important; border: 1px solid #DDDDDD; text-align: center;'>If your URL is correct, you'll see an image preview here. Large images may take a few minutes to appear.<p><font size='-2'>Remember: Using others' images on the web without their permission may be bad manners, or worse, copyright infringement.</font></p></div>";
+			webAddressUrl += "</div>";	
 
-		imgInput = "<div id='imgInput' style='float: left; font-size: 13px; padding-left: 40px; height: 100px;'>";
-		imgInput += uploadPartDiv;
-		imgInput += webAddressUrl;
-		imgInput += "</div>";
+		var imgInput = "<div id='imgInput' style='float: left; font-size: 13px; padding-left: 40px; height: 100px;'>";
+			imgInput += uploadPartDiv;
+			imgInput += webAddressUrl;
+			imgInput += "</div>";
 		
 		var linkDiv = "<div id='insertImgDiv' command='insertimage' style='padding: 15px 50px; font-family: arial, sans serif;' >";
 			linkDiv += "<div id='popupTitle' style='margin-bottom: 40px;'>";
@@ -381,7 +373,7 @@ var PE = pintuEditor = {
 		this.create_div(700, 260, 'img');
 		$('#img').append(linkDiv);	
 
-		_that = this;
+		var _that = this;
 
 		$('.imgtype').each(function(){ 
 				$(this).bind('click', function() {
@@ -390,8 +382,8 @@ var PE = pintuEditor = {
 				});
 			});
 		
-		$('.closeX').bind('click', function() { $('#img').toggle(); });
-		$('#imgCancel').bind('click', function() { $('#img').toggle(); });
+		$('.closeX').bind('click', function() { $('#img').toggle(); $('.petbPICTURE').removeClass('toolItemSelected');});
+		$('#imgCancel').bind('click', function() { $('#img').toggle(); $('.petbPICTURE').removeClass('toolItemSelected');});
 
 		//action when img is ready
 		function imgReadyAction()
@@ -417,35 +409,23 @@ var PE = pintuEditor = {
 			{			
 				$('#imgDone').removeAttr('disabled').unbind().bind('click', function() { 					
 					_that.doc.execCommand('insertimage', false,  imgurl);
+					
 					$('#img').toggle();
 					$('#urlImg').val('');
 					$('#imgDone').attr('disabled', true);
 					
+					$('.petbPICTURE').removeClass('toolItemSelected');
 				});
 			}
 		}
 
-		//$(function() {
-			$('#urlImg').bind('input', function() {
+		$('#urlImg').bind('input', function() {
+			
+				$('#imgDone').attr('disabled', true);
+				imgReadyAction();
+				console.info('paste');
 				
-					$('#imgDone').attr('disabled', true);
-					imgReadyAction();
-					console.info('paste');
-					
-				});
-				
-	/*
-			$('#urlImg').keyup(function() { 
-					$('#imgDone').attr('disabled', true);
-					var imgurl = $('#urlImg').val();
-					imgReadyAction();
-					console.info('key', imgurl);
-				});
-*/
-
-		//});
-		
-
+			});
 
 	},
 	
@@ -472,15 +452,12 @@ var PE = pintuEditor = {
 	
 	pop_div: function(top, left, id)
 	{
-		
 		var regExp = /^#(\w+)$/;
 			t = (typeof top == "number") ? top+"px" : top;
 			l = (typeof left == "number") ? left+"px" : left;
 			id = regExp.exec(id) ? id : '#'+id;
-		console.info(id);
 		$('.popup_toolbar_div').not(id).hide();
 		$(id).css({"top":t, "left":l}).toggle();
-		//console.info('in pop_div :pop up '+id);
 	},
 	
 	color_plate: function(oJson)
@@ -503,9 +480,9 @@ var PE = pintuEditor = {
 		this.create_div(0, 0, 'colorPlate');
 		$('#colorPlate').append(colorPlate);
 
-		_that = this;
+		var _that = this;
 
-		this.colorPlate.addEventListener('mouseover', function(e){
+		this.colorPlate.onmouseover = function(e){
 			$('.colorBrick').css({'border':'','width':'14px','height':'12px','margin':'0px -2px -2px 0px'});
 			o = e.target || e.srcElement;
 			if(o.className == "colorBrick")
@@ -513,7 +490,7 @@ var PE = pintuEditor = {
 				$(o).css({'width':'16px','height':'14px', 'margin':'-2px -4px -4px -2px'});
 				$(o).css('border', '1px solid #FFFF00');
 			}
-		});
+		};
 
 		this.colorPlate.onmousedown = function(e){
 			o = e.target || e.srcElement;
@@ -553,18 +530,18 @@ var PE = pintuEditor = {
 		this.create_div(150, 0, 'fontSize');
 		$('#fontSize').append(size);
 
-		_that = this;
+		var _that = this;
 		
-		this.fontSize.addEventListener('mouseover', function(e){
+		this.fontSize.onmouseover = function(e){
 			$('.fontSize').attr('class', 'fontSize');
 			o = e.target || e.srcElement;
 			$(o).addClass('overFont');
-		});
+		};
 		
-		this.fontSize.addEventListener('mouseout', function(e){
+		this.fontSize.onmouseout = function(e){
 			o = e.target || e.srcElement;
 			$(o).removeClass('overFont');
-		});
+		};
 
 		this.fontSize.onclick =  function(e){
 			o = e.target || e.srcElement;
@@ -599,20 +576,20 @@ var PE = pintuEditor = {
 		this.create_div(150, 0, 'fontFamily');		
 		$('#fontFamily').append(fb);
 
-		_that = this;
+		var _that = this;
 		
-		this.fontFamily.addEventListener('mouseover', function(e){
+		this.fontFamily.onmouseover = function(e){
 			$('.fontFamily').attr('class', 'fontFamily');
 			o = e.target || e.srcElement;
 			$(o).addClass('overFont');
-		});
+		};
 		
-		this.fontFamily.addEventListener('mouseout', function(e){
+		this.fontFamily.onmouseout = function(e){
 			o = e.target || e.srcElement;
 			$(o).removeClass('overFont');
-		});
+		};
 
-		this.fontFamily.addEventListener('click', function(e){
+		this.fontFamily.onclick = function(e){
 			o = e.target || e.srcElement;
 			//console.info(o, o.title, $(o).attr('command'));
 			$('#fontFamily').hide();
@@ -626,7 +603,7 @@ var PE = pintuEditor = {
 			
 			_that.doc.execCommand('FontName', false, $(o).attr('command'));
 			$('.petbFONT').removeClass('toolItemSelected');
-		});
+		};
 
 		_that.ifr.contentWindow.focus();
 	}
